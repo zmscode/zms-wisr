@@ -23,31 +23,14 @@
 // Input: num (number) - the amount to format.
 // Output: A string representing the amount in dollar format
 function toDollars(num) {
-    let dollars = Math.round(num).toString();
-    
-    if (dollars.length > 3) {
-        dollars = dollars.substring(0, dollars.length - 3) + "," + dollars.substring(dollars.length - 3, dollars.length);
-        
-    }
-    
-    if (dollars.length > 7) {
-        dollars = dollars.substring(0, dollars.length - 7) + "," + dollars.substring(dollars.length - 7, dollars.length);
-    }
-    
-    return "$" + dollars;
-    
+    return "$" + Math.round(num).toLocaleString();
+
 }
 
 // Calculates weekly tax based on gross income using NAT1004 coefficients (Scale 2).
 // Input: grossIncome (number) - the gross income amount.
 // Output: tax (number) - the calculated weekly tax.
 function getWeeklyTax(grossIncome) {
-    
-    let grossFound = false;
-    let index = 0;
-    let tax = 0;
-    let iaa = 0; 
-    let ibb = 0;
     
     let nat1004coeffs = [
         [361, 0, 0],
@@ -61,18 +44,12 @@ function getWeeklyTax(grossIncome) {
         [999999, 0.47, 650.6154]
     ];
     
-    while ((!grossFound) && (index < 9)) {
-        if (grossIncome < nat1004coeffs[index][0]) {
-            iaa = nat1004coeffs[index][1];
-            ibb = nat1004coeffs[index][2];
-            grossFound = true;
-        } else {
-            index += 1;
+    for (const [ixx, iaa, ibb] of nat1004coeffs) {
+        if (grossIncome < ixx) {
+            return iaa * grossIncome - ibb;
         }
-    }
     
-    tax = iaa * grossIncome - ibb;
-    return tax;
+    }
 
 }
 
