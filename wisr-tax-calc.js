@@ -148,5 +148,3 @@ function taxCalc(value, freq, taxed, returnFreq = false) {
     }
 
 }
-
-console.log(taxCalc(2560, 1, false, false));
