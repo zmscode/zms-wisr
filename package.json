@@ -1,0 +1,9 @@
+{
+  "name": "zms-wisr",
+  "version": "0.0.1",
+  "description": "Various personal js tools",
+  "author": {
+    "name": "zms",
+    "email": "zacmorrisseysmith@gmail.com"
+  }
+}

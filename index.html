@@ -1,37 +1,171 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
 
-<head>
-    <link rel="stylesheet" href="style.css">
-    <title>zms-wisr</title>
+    <title>js labs - zms</title>
+
+    <meta name="description" content="" />
+    <meta name="author" content="zms" />
+
+    <meta name="viewport" content="width=700, user-scalable=no" />
+
+    <link
+      href="https://fonts.googleapis.com/css?family=JetBrains Mono"
+      rel="stylesheet"
+    />
+    <link href="style.css" rel="stylesheet" type="text/css" />
     <style>
-        body {
-            font-family: 'JetBrains Mono';
-            font-size: 22px;
-        }
+      body {
+        font-family: 'JetBrains Mono';
+        font-size: 16px;
+      }
     </style>
-</head>
-<header>
-    <h1>zms js lab</h1>
-</header>
+  </head>
 
-<body>
-    <main>
-        <div class=”row">
-            <div class=”post-text-box”>
-                <h1>Heading 1</h1>
-                <section>
-                    <h2>Heading 2</h2>
-                    <p>Paragraph</p>
-                </section>
-            </div>
+  <body>
+    <nav class="toc">
+      <ul>
+        <li><a href="#intro">Intro</a></li>
+        <li>
+          <a href="#dev">Developer Mode</a>
+          <ul>
+            <li><a href="#dev-edit-html">Edit HTML</a></li>
+            <li><a href="#dev-element-classes">Element Classes</a></li>
+            <li><a href="#dev-slide-classes">Slide Classes</a></li>
+            <li><a href="#dev-export-html">Export HTML</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#css">CSS Editor</a>
+          <ul>
+            <li><a href="#css-fonts">Custom Fonts</a></li>
+            <li><a href="#css-developer-mode">Developer Mode</a></li>
+            <li><a href="#css-examples">Examples</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+
+    <article class="contents">
+      <section id="intro">
+        <h2>Progress Nav</h2>
+        <p>
+          Aliqua tempor eu velit occaecat ipsum commodo ipsum consequat enim
+          fugiat voluptate exercitation consequat. Sunt aliquip do commodo
+          mollit cupidatat amet aliquip duis ea velit. Ipsum id irure do sunt
+          voluptate.
+        </p>
+        <h2>Slides for Developers</h2>
+        <p>
+          Culpa quis ut ea tempor. Laborum velit cupidatat ad consectetur sint
+          velit irure sit reprehenderit. Et enim est non Lorem elit nostrud
+          officia. Qui magna ullamco ullamco reprehenderit exercitation
+          reprehenderit.
+        </p>
+        <p>
+          Anim cupidatat consequat nisi incididunt ullamco nulla velit ut Lorem
+          id officia ad deserunt.
+        </p>
+      </section>
+
+      <section>
+        <div id="dev">
+          <h2>Developer Mode</h2>
+          <p>
+            The Slides editor has a developer mode which is useful if you know a
+            bit of HTML and CSS. With this mode active you will be able to
+            modify the underlying HTML of your deck, allowing you to make
+            adjustments that the Slides editor does not provide interface
+            options for.
+          </p>
+          <p>
+            To enable the developer mode open the editor settings in the bottom
+            left corner:
+          </p>
         </div>
-    </main>
 
-</body>
-<footer>
+        <div id="dev-edit-html">
+          <h3>Editing HTML</h3>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Libero repellendus consequuntur vero exercitationem omnis, aliquid reiciendis dolorum odio quam? Expedita saepe debitis veniam sit asperiores fugit hic animi dignissimos qui.
+          </p>
+        </div>
 
-</footer>
+        <div id="dev-element-classes">
+          <h3>
+            Element Classes
+          </h3>
+          <p>
+            Incididunt amet eiusmod irure excepteur laboris sint. Cupidatat deserunt pariatur velit excepteur aute quis laborum reprehenderit aliquip ullamco. Esse nostrud voluptate ut anim eiusmod ad anim amet culpa consequat. Adipisicing ipsum duis magna duis labore labore ipsum nostrud sint excepteur excepteur ad consequat. Reprehenderit fugiat in culpa officia ea quis irure eu aliquip cupidatat.
+          </p>
+          <p>
+            Here's an example that defines an "upside-down" class using custom
+            CSS and applies it to a text block.
+          </p>
+        </div>
 
+        <div id="dev-slide-classes">
+          <h3>
+            Slide Classes
+          </h3>
+          <p>
+            Just like you can add custom classes to individual elements it's
+            also possible to add custom classes at the slide level. This can
+            used to apply broader changes to the whole slide like inverting text
+            and icon colors or changing the slide transition.
+          </p>
+          <p>
+            Under the hood the slide background element is separate from the
+            slide itself. Here are two examples showing how you'd target the
+            slide contents or slide background using a custom class called
+            "night-sky":
+          </p>
+        </div>
 
+        <div id="dev-export-html">
+          <h3>Export HTML</h3>
+          <p>
+            Aliqua est quis amet esse tempor. Id ex tempor aliquip mollit adipisicing ullamco. Lorem consectetur qui proident id id. Sint labore magna commodo magna minim incididunt ut est Lorem tempor reprehenderit.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <div id="css">
+          <h2>
+            CSS Editor
+          </h2>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ratione quod necessitatibus atque labore explicabo eos laudantium non architecto reprehenderit! Saepe tempora laudantium corporis cupiditate doloribus commodi error doloremque nisi delectus.
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Praesentium dicta officia quibusdam at beatae laborum itaque deserunt eligendi commodi? Nihil maxime ipsum quisquam quaerat necessitatibus at facere soluta! Ducimus, suscipit.
+          </p>
+        </div>
+        <div id="css-fonts">
+          <h3>Custom Fonts</h3>
+          <p>
+            Minim excepteur deserunt velit est duis.
+          </p>
+        </div>
+        <div id="css-developer-mode">
+          <h3>Developer Mode</h3>
+          <p>
+            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ullam sint, exercitationem cupiditate, nulla totam recusandae vel animi repellat, vero sed repudiandae numquam dolores dicta alias soluta molestiae aspernatur ea inventore!
+          </p>
+        </div>
+
+        <div id="css-examples">
+          <h3>Examples</h3>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio deleniti
+          quaerat optio ipsam minima omnis corporis porro! Voluptate
+          accusantium, ut incidunt, necessitatibus non ab repudiandae mollitia
+          possimus, aut id dolore?
+        </div>
+
+        <p>Sit nostrud laborum excepteur mollit.</p>
+      </section>
+    </article>
+  </body>
 </html>
