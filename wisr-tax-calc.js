@@ -32,7 +32,7 @@ function toDollars(num) {
 // Output: tax (number) - the calculated weekly tax.
 function getWeeklyTax(grossIncome) {
     
-    let nat1004coeffs = [
+    const nat1004coeffs = [
         [361, 0, 0],
         [500, 0.16, 57.8462],
         [625, 0.26, 107.8462],
@@ -53,15 +53,15 @@ function getWeeklyTax(grossIncome) {
 
 }
 
+console.log(getWeeklyTax(80000));
+
 // Converts between two frequencies (weekly, fortnightly, monthly, yearly) and returns the multiplier.
 // Input: freq1 (number) - starting frequency, freq2 (number) - target frequency.
 // Output: freqMult (number) - the conversion multiplier between the two frequencies.
 function freqConverter(freq1, freq2) {
-    let freqMult = 1;
     const multipliers = { 0: 52, 1: 26, 2: 12, 3: 1 };
-    
-    freqMult *= multipliers[freq1] / multipliers[freq2];
-    return freqMult;
+
+    return multipliers[freq1] / multipliers[freq2];
     
 }
 
