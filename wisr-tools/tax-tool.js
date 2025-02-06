@@ -18,42 +18,53 @@
  *
  */
 
-/* Frequency Codes:
- *      - "w" : weekly
- *      - "f" : fortnightly
- *      - "m" : monthly
- *      - "y" : yearly
+
+/* 
+ * FREQUENCY:
+ *      - 'w'       : weekly
+ *      - 'f'       : fortnightly
+ *      - 'm'       : monthly
+ *      - 'y'       : yearly
+ * 
+ * INPUT:
+ *      - 'curr'    : currency (number)
+ *      - 'tax'     : tax (number + positive)
+ *      - 'freq'    : frequency (string)
+ * 
  */
 
+import { NAT1004COEFFS, MAX_VALUE, ERROR_CODE, FREQUENCY_CODES } from './constants.js';
+
 function validInput (input, type) {
-  switch (type) {
-    case 'num':
-      return typeof input === 'number'
+    switch (type) {
+        case 'curr':
+            return typeof input === 'number' && (input < MAX_VALUE);
 
-    case 'str':
-      return typeof input === 'string'
+        case 'tax':
+            return (typeof input === 'number') && (input >= 0) && (input < MAX_VALUE);
 
-    case 'freq':
-      const freqs = ['w', 'f', 'm', 'y']
-      if (!Array.isArray(input)) {
-        return freqs.includes(input);
-      }
-      for (const freq of input) {
-        if (!freqs.includes(freq)) {
-          return false
-        }
-      }
+        case 'freq':
+            if (!Array.isArray(input)) {
+                return FREQUENCY_CODES.includes(input)
+            }
+            for (const freq of input) {
+                if (!FREQUENCY_CODES.includes(freq)) {
+                    return false
+                }
+            }
+            return true
 
-    default:
-      return false
-  }
+        default:
+            return false
+    }
 }
 
-// Formats a number to a currency string format with commas for thousands.
-// Input: num (number) : the amount to format.
-// Output: A string representing the amount in dollar format
-function formatToCurrency (num) {
-  return '$' + Math.round(num).toLocaleString()
+function formatCurrency(value) {
+    if (!validInput(value, 'curr')) {
+        return ERROR_CODE;
+    }
+
+    return '$' + Math.round(num).toLocaleString()
 }
 
 /* Calculates the frequency conversion factor.
@@ -67,61 +78,60 @@ function formatToCurrency (num) {
  * Output:
  *      - conversion (number): the conversion factor between the two frequencies.
  */
-
-function freqConverter (freqFrom, freqTo) {
-  const multipliers = { w: 52, f: 26, m: 12, y: 1 }
-
-  return multipliers[freqFrom] / multipliers[freqTo]
+function frequencyConvert(from, to) {
+    if (!validInput([from, to], 'freq')) {
+        return ERROR_CODE;
+    }
+    
+    const multipliers = { 'w': 52, 'f': 26, 'm': 12, 'y': 1 };
+    
+    return multipliers[from] / multipliers[to]
 }
 
-function calculateWeeklyTax (gross) {
-  if (isValidCurrency(gross)) {
-    const nat1004coeffs = [
-      [361, 0, 0],
-      [500, 0.16, 57.8462],
-      [625, 0.26, 107.8462],
-      [721, 0.18, 57.8462],
-      [865, 0.189, 64.3365],
-      [1282, 0.3227, 180.0385],
-      [2596, 0.32, 176.5769],
-      [3653, 0.39, 358.3077],
-      [999999, 0.47, 650.6154]
-    ]
+function calculateWeeklyTax(gross) {
+    if (!validInput(gross, 'curr')) {
+        return errorCode;
+    }
 
-    for (const [threshold, rate, offset] of nat1004coeffs) {
-      if (gross < threshold) {
-        const weeklyTax = rate * weeklyGross - offset
+  for (const [threshold, rate, offset] of NAT1004COEFFS) {
+    if (gross < threshold) {
+      const weeklyTax = rate * weeklyGross - offset
 
-        return weeklyTax
-      }
+      return weeklyTax
     }
   }
-
-  return -1
 }
 
 function getTax (gross, inFreq, outFreq) {
-  if (isValidCurrency(gross) && isValidFrequency([inFreq, outFreq])) {
-    const weeklyGross = gross * freqConverter(inFreq, 'w')
-    const weeklyTax = getWeeklyTax(weeklyGross)
+    if (!validInput(gross, 'curr') || !validInput([inFreq, outFreq], 'freq')) {
+        return errorCode;
+    }
 
-    return weeklyTax * freqConverter('w', outFreq)
-  }
+    const weeklyGross = gross * frequencyConvert(inFreq, 'w');
+    const weeklyTax = getWeeklyTax(weeklyGross);
 
-  return -1
+    return weeklyTax * frequencyConvert('w', outFreq);
 }
 
 function getNet (gross, inFreq, outFreq) {
-  if (isValidCurrency(gross) && isValidFrequency([inFreq, outFreq])) {
-    const weeklyGross = gross * freqConverter(inFreq, 'w')
-    const weeklyTax = getWeeklyTax(weeklyGross)
+    if (!validInput(gross, 'curr') || !validInput([inFreq, outFreq], 'freq')) {
+        return errorCode;
+    }
 
-    let weeklyNet = weeklyGross - weeklyTax
+    const weeklyGross = gross * frequencyConvert(inFreq, 'w');
+    const weeklyTax = getWeeklyTax(weeklyGross);
+    const weeklyNet = weeklyGross - weeklyTax;
 
-    return (net = weeklyNet * freqConverter('w', outFreq))
-  }
+    return weeklyNet * frequencyConvert('w', outFreq);
+}
 
-  return -1
+function getGross(net, inFreq, outFreq) {
+    if (!validInput(net, "curr") || !validInput([inFreq, outFreq], "freq")) {
+        return ERROR_CODE;
+    }
+
+    
+
 }
 
 // Calculates the gross income, tax, and net income based on the given value, frequency, and tax status.
@@ -151,9 +161,7 @@ function taxCalc (value, freq, taxed, returnFreq = false) {
   } else {
     gross = grossGuess
 
-    let iterationLimit = 1000 // Limit to 1000 iterations, for example
-    let iterations = 0
-    while (!grossFound && iterations < iterationLimit) {
+    while (!grossFound) {
       guessTax = getWeeklyTax(grossGuess)
       net = value * freqConverter(freq, 0)
 
@@ -167,7 +175,6 @@ function taxCalc (value, freq, taxed, returnFreq = false) {
         }
       }
       iterator /= 2
-      iterations++
     }
     tax = Math.round((grossGuess - net) * 100) / 100
     gross = Math.round(grossGuess * 100) / 100
