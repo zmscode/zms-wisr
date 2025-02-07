@@ -33,38 +33,53 @@
  * 
  */
 
-import { NAT1004COEFFS, MAX_VALUE, ERROR_CODE, FREQUENCY_CODES } from './constants.js';
+import { ERROR_CODE, FREQUENCY_CODES, CURR_MAX_VALUE, NAT1004COEFFS } from './util/helper.js';
 
 function validInput (input, type) {
     switch (type) {
         case 'curr':
-            return typeof input === 'number' && (input < MAX_VALUE);
+            return typeof input === 'number' && (input < CURR_MAX_VALUE);
 
         case 'tax':
-            return (typeof input === 'number') && (input >= 0) && (input < MAX_VALUE);
+            return (typeof input === 'number') && (between(input, 0, CURR_MAX_VALUE));
 
         case 'freq':
             if (!Array.isArray(input)) {
-                return FREQUENCY_CODES.includes(input)
+                return FREQUENCY_CODES.includes(input);
             }
             for (const freq of input) {
                 if (!FREQUENCY_CODES.includes(freq)) {
-                    return false
+                    return false;
                 }
             }
-            return true
+            return true;
 
         default:
-            return false
+            return false;
     }
 }
 
+function isTaxable(income) {
+  if (!validInput(income, 'curr') || income < 18200) {
+    return ERROR_CODE;
+  }
+
+  return true;
+}
+
+/* Formats a currency value to a dollar string (e.g. 80000 > $80,000).
+ *
+ * Input:
+ *      - value (number): the value to be formatted
+ * Output:
+ *      - return (string): the converted dollar value
+ */
 function formatCurrency(value) {
-    if (!validInput(value, 'curr')) {
+    if (!isTaxable(value, 'y')) {
         return ERROR_CODE;
     }
 
-    return '$' + Math.round(num).toLocaleString()
+    return '$' + Math.round(value).toLocaleString();
 }
 
 /* Calculates the frequency conversion factor.
@@ -73,8 +88,8 @@ function formatCurrency(value) {
  *      - e.g. fortnightly to monthly: fortnightly > yearly > monthly
  *
  * Input:
- *      - freqFrom (frequency): the frequency to convert from.
- *      - freqTo (frequency): the frequency to convert to.
+ *      - from (frequency): the frequency to convert from.
+ *      - to (frequency): the frequency to convert to.
  * Output:
  *      - conversion (number): the conversion factor between the two frequencies.
  */
@@ -85,41 +100,41 @@ function frequencyConvert(from, to) {
     
     const multipliers = { 'w': 52, 'f': 26, 'm': 12, 'y': 1 };
     
-    return multipliers[from] / multipliers[to]
+    return multipliers[from] / multipliers[to];
 }
 
 function calculateWeeklyTax(gross) {
     if (!validInput(gross, 'curr')) {
-        return errorCode;
+        return ERROR_CODE;
     }
 
   for (const [threshold, rate, offset] of NAT1004COEFFS) {
     if (gross < threshold) {
-      const weeklyTax = rate * weeklyGross - offset
+      const weeklyTax = rate * gross - offset;
 
-      return weeklyTax
+      return weeklyTax;
     }
   }
 }
 
 function getTax (gross, inFreq, outFreq) {
     if (!validInput(gross, 'curr') || !validInput([inFreq, outFreq], 'freq')) {
-        return errorCode;
+        return ERROR_CODE;
     }
 
     const weeklyGross = gross * frequencyConvert(inFreq, 'w');
-    const weeklyTax = getWeeklyTax(weeklyGross);
+    const weeklyTax = calculateWeeklyTax(weeklyGross);
 
     return weeklyTax * frequencyConvert('w', outFreq);
 }
 
 function getNet (gross, inFreq, outFreq) {
     if (!validInput(gross, 'curr') || !validInput([inFreq, outFreq], 'freq')) {
-        return errorCode;
+        return ERROR_CODE;
     }
 
     const weeklyGross = gross * frequencyConvert(inFreq, 'w');
-    const weeklyTax = getWeeklyTax(weeklyGross);
+    const weeklyTax = calculateWeeklyTax(weeklyGross);
     const weeklyNet = weeklyGross - weeklyTax;
 
     return weeklyNet * frequencyConvert('w', outFreq);
@@ -130,60 +145,29 @@ function getGross(net, inFreq, outFreq) {
         return ERROR_CODE;
     }
 
-    
+    let weeklyNet = net * frequencyConvert(inFreq, "w");
 
-}
+    let lowerBound = weeklyNet * 1.1;
+    let upperBound = weeklyNet * 1.5;
+    let precision = 0.001;
 
-// Calculates the gross income, tax, and net income based on the given value, frequency, and tax status.
-// Inputs: value (number), freq (number), taxed (boolean), returnFreq (boolean - optional, default: false)
-// Outputs: Array of formatted strings [gross income, tax, net income]
-function taxCalc (value, freq, taxed, returnFreq = false) {
-  let gross = 0
-  let tax = 0
-  let net = 0
-  let grossGuess = 999999
-  let iterator = grossGuess / 2
-  let grossFound = false
-  let guessTax = 0
+    while (upperBound - lowerBound > precision) {
+        let guessGross = (lowerBound + upperBound) / 2;
+        let guessTax = calculateWeeklyTax(guessGross);
+        let guessNet = guessGross - guessTax;
 
-  if (taxed) {
-    gross = value * freqConverter(freq, 0)
-    tax = getWeeklyTax(gross)
-    net = gross - tax
-
-    if (returnFreq) {
-      gross *= freqConverter(0, freq)
-      tax *= freqConverter(0, freq)
-      net *= freqConverter(0, freq)
-    }
-
-    return [toDollars(gross), toDollars(tax), toDollars(net)]
-  } else {
-    gross = grossGuess
-
-    while (!grossFound) {
-      guessTax = getWeeklyTax(grossGuess)
-      net = value * freqConverter(freq, 0)
-
-      if (Math.round((gross - guessTax) * 100) == Math.round(net * 100)) {
-        grossFound = true
-      } else {
-        if (Math.round((grossGuess - guessTax) * 100) > Math.round(net * 100)) {
-          grossGuess -= iterator
-        } else {
-          grossGuess += iterator
+        if (Math.abs(guessNet - weeklyNet) < precision) {
+            return guessGross * frequencyConvert("w", outFreq);
         }
-      }
-      iterator /= 2
-    }
-    tax = Math.round((grossGuess - net) * 100) / 100
-    gross = Math.round(grossGuess * 100) / 100
 
-    if (returnFreq) {
-      gross *= freqConverter(0, freq)
-      tax *= freqConverter(0, freq)
-      net *= freqConverter(0, freq)
+        if (guessNet > weeklyNet) {
+            upperBound = guessGross;
+        } else {
+            lowerBound = guessGross;
+        }
     }
-    return [toDollars(gross), toDollars(tax), toDollars(net)]
-  }
+
+    return ((lowerBound + upperBound) / 2) * frequencyConvert("w", outFreq);
 }
+
+console.log(getGross(96865, 'y', 'm'));
