@@ -18,57 +18,91 @@
  *
  */
 
+function validInput (input, type) {
+    switch (type) {
+        case 'curr':
+            return typeof input === 'number' && (input < constants.CURR_MAX_VALUE);
 
+        case 'tax':
+            return (typeof input === 'number') && (between(input, 0, CURR_MAX_VALUE));
 
-// Returns whether an income is below the tax-free threshold
+        case 'freq':
+            if (!Array.isArray(input)) {
+                return FREQUENCY_CODES.includes(input);
+            }
+            for (const freq of input) {
+                if (!FREQUENCY_CODES.includes(freq)) {
+                    return false;
+                }
+            }
+            return true;
+
+        default:
+            return false;
+    }
+}
+
 function isTaxable(income) {
-  return (typeof input === 'number') && (input >= 0) && (input <= 18200);
+  if (!validInput(income, 'curr') || income < 18200) {
+    return ERROR_CODE;
+  }
 
+  return true;
 }
 
-// Formats a currency value to a dollar string (e.g. 80000 > $80,000)
+/* Formats a currency value to a dollar string (e.g. 80000 > $80,000).
+ *
+ * Input:
+ *      - value (number): the value to be formatted
+ * Output:
+ *      - return (string): the converted dollar value
+ */
 function formatCurrency(value) {
-    return '$' + Math.round(value).toLocaleString();
+    if (!isTaxable(value, 'y')) {
+        return ERROR_CODE;
+    }
 
+    return '$' + Math.round(value).toLocaleString();
 }
 
-// Converts from one frquency to another (e.g. 'w' to 'm')
+/* Calculates the frequency conversion factor.
+ * Note:
+ *      - Converts the 'from' frequency to yearly then back to the 'to' frequency.
+ *      - e.g. fortnightly to monthly: fortnightly > yearly > monthly
+ *
+ * Input:
+ *      - from (frequency): the frequency to convert from.
+ *      - to (frequency): the frequency to convert to.
+ * Output:
+ *      - conversion (number): the conversion factor between the two frequencies.
+ */
 function frequencyConvert(from, to) {
+    if (!validInput([from, to], 'freq')) {
+        return ERROR_CODE;
+    }
+    
     const multipliers = { 'w': 52, 'f': 26, 'm': 12, 'y': 1 };
     
     return multipliers[from] / multipliers[to];
-
 }
 
 function calculateWeeklyTax(gross) {
-    if (!isTaxable(gross)) {
-        return -Infinity;
+    if (!validInput(gross, 'curr')) {
+        return ERROR_CODE;
     }
 
-    const nat1004coeffs = [
-        [361, 0, 0],
-        [500, 0.16, 57.8462],
-        [625, 0.26, 107.8462],
-        [721, 0.18, 57.8462],
-        [865, 0.189, 64.3365],
-        [1282, 0.3227, 180.0385],
-        [2596, 0.32, 176.5769],
-        [3653, 0.39, 358.3077],
-        [999999999, 0.47, 650.6154] 
-    ];
+  for (const [threshold, rate, offset] of NAT1004COEFFS) {
+    if (gross < threshold) {
+      const weeklyTax = rate * gross - offset;
 
-    for (const [threshold, rate, offset] of nat1004coeffs) {
-        if (gross < threshold) {
-            const weeklyTax = rate * gross - offset;
-
-        return weeklyTax;
+      return weeklyTax;
     }
   }
 }
 
 function getTax (gross, inFreq, outFreq) {
-    if (!isTaxable(gross)) {
-        return 0;
+    if (!validInput(gross, 'curr') || !validInput([inFreq, outFreq], 'freq')) {
+        return ERROR_CODE;
     }
 
     const weeklyGross = gross * frequencyConvert(inFreq, 'w');
@@ -78,8 +112,8 @@ function getTax (gross, inFreq, outFreq) {
 }
 
 function getNet (gross, inFreq, outFreq) {
-    if (!isTaxable(gross)) {
-        return -Infinity;
+    if (!validInput(gross, 'curr') || !validInput([inFreq, outFreq], 'freq')) {
+        return ERROR_CODE;
     }
 
     const weeklyGross = gross * frequencyConvert(inFreq, 'w');

@@ -1,11 +1,22 @@
 // GLOBAL
 export const ERROR_CODE = -Infinity;
 export const FREQUENCY_CODES = ['w', 'f', 'm', 'y'];
+export const FREQUENCY_MULTIPLIERS = {
+    'w': 52,
+    'f': 26,
+    'm': 12,
+    'y': 1
+}
 
-// MATHEMATICAL
+/* * * MATHEMATICAL * * */
+
+
 export const PRECISION_LEVEL = [
     [1, 0.1], 
     [2, 0.01],
+    [3, 0.001],
+    [4, 0.0001],
+    [5, 0.00001]
 ];
 
 export const CURR_MAX_VALUE = Math.pow(10, 9) - 1; // Maximum value for currency input ($999,999,999)
