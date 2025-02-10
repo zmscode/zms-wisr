@@ -18,105 +18,64 @@
  *
  */
 
-
-
-// Returns whether an income is below the tax-free threshold
-function isTaxable(income) {
-  return (typeof input === 'number') && (input >= 0) && (input <= 18200);
-
-}
+const TAX_CONSTANTS = {
+  NAT1004COEFFS: [
+      { threshold: 361, rate: 0, offset: 0 },
+      { threshold: 500, rate: 0.16, offset: 57.8462 },
+      { threshold: 625, rate: 0.26, offset: 107.8462 },
+      { threshold: 721, rate: 0.18, offset: 57.8462 },
+      { threshold: 865, rate: 0.189, offset: 64.3365 },
+      { threshold: 1282, rate: 0.3227, offset: 180.0385 },
+      { threshold: 2596, rate: 0.32, offset: 176.5769 },
+      { threshold: 3653, rate: 0.39, offset: 358.3077 },
+      { threshold: 999999999, rate: 0.47, offset: 650.6154 }
+  ],
+  FREQUENCY_CODES: { 'w': 52, 'f': 26, 'm': 12, 'y': 1 }
+};
 
 // Formats a currency value to a dollar string (e.g. 80000 > $80,000)
 function formatCurrency(value) {
-    return '$' + Math.round(value).toLocaleString();
-
+  return '$' + Math.round(value).toLocaleString();
 }
 
-// Converts from one frquency to another (e.g. 'w' to 'm')
+// Converts from one frequency to another (e.g. 'w' to 'm')
 function frequencyConvert(from, to) {
-    const multipliers = { 'w': 52, 'f': 26, 'm': 12, 'y': 1 };
-    
-    return multipliers[from] / multipliers[to];
-
+  const multipliers = TAX_CONSTANTS.FREQUENCY_CODES;
+  return multipliers[from] / multipliers[to];
 }
 
+// Finds the appropriate tax bracket for a given gross income
+function getBracket(gross) {
+  return TAX_CONSTANTS.NAT1004COEFFS.find(b => gross < b.threshold) || 
+         TAX_CONSTANTS.NAT1004COEFFS[TAX_CONSTANTS.NAT1004COEFFS.length - 1];
+}
+
+// Calculates the weekly tax for a given gross income
 function calculateWeeklyTax(gross) {
-    if (!isTaxable(gross)) {
-        return -Infinity;
-    }
+  const bracket = getBracket(gross);
+  return roundToCents(bracket.rate * gross - bracket.offset);
+}
 
-    const nat1004coeffs = [
-        [361, 0, 0],
-        [500, 0.16, 57.8462],
-        [625, 0.26, 107.8462],
-        [721, 0.18, 57.8462],
-        [865, 0.189, 64.3365],
-        [1282, 0.3227, 180.0385],
-        [2596, 0.32, 176.5769],
-        [3653, 0.39, 358.3077],
-        [999999999, 0.47, 650.6154] 
-    ];
-
-    for (const [threshold, rate, offset] of nat1004coeffs) {
-        if (gross < threshold) {
-            const weeklyTax = rate * gross - offset;
-
-        return weeklyTax;
-    }
+// Calculates the gross income from a target net income using Newton-Raphson method
+function calculateGrossFromNet(targetNet, precision = 0.001) {
+  let x = targetNet * 1.5; // Initial guess
+  let prevX = 0;
+  
+  while (Math.abs(x - prevX) > precision) {
+      prevX = x;
+      const bracket = getBracket(x);
+      const f = x - bracket.rate * x + bracket.offset - targetNet;
+      const fPrime = 1 - bracket.rate;
+      x = x - f / fPrime;
   }
+  
+  return roundToCents(x);
 }
 
-function getTax (gross, inFreq, outFreq) {
-    if (!isTaxable(gross)) {
-        return 0;
-    }
-
-    const weeklyGross = gross * frequencyConvert(inFreq, 'w');
-    const weeklyTax = calculateWeeklyTax(weeklyGross);
-
-    return weeklyTax * frequencyConvert('w', outFreq);
+// Rounds a value to the nearest cent
+function roundToCents(value) {
+  return Math.round(value * 100) / 100;
 }
 
-function getNet (gross, inFreq, outFreq) {
-    if (!isTaxable(gross)) {
-        return -Infinity;
-    }
-
-    const weeklyGross = gross * frequencyConvert(inFreq, 'w');
-    const weeklyTax = calculateWeeklyTax(weeklyGross);
-    const weeklyNet = weeklyGross - weeklyTax;
-
-    return weeklyNet * frequencyConvert('w', outFreq);
-}
-
-function getGross(net, inFreq, outFreq) {
-    if (!validInput(net, "curr") || !validInput([inFreq, outFreq], "freq")) {
-        return ERROR_CODE;
-    }
-
-    let weeklyNet = net * frequencyConvert(inFreq, "w");
-
-    let lowerBound = weeklyNet * 1.1;
-    let upperBound = weeklyNet * 1.5;
-    let precision = 0.001;
-
-    while (upperBound - lowerBound > precision) {
-        let guessGross = (lowerBound + upperBound) / 2;
-        let guessTax = calculateWeeklyTax(guessGross);
-        let guessNet = guessGross - guessTax;
-
-        if (Math.abs(guessNet - weeklyNet) < precision) {
-            return guessGross * frequencyConvert("w", outFreq);
-        }
-
-        if (guessNet > weeklyNet) {
-            upperBound = guessGross;
-        } else {
-            lowerBound = guessGross;
-        }
-    }
-
-    return ((lowerBound + upperBound) / 2) * frequencyConvert("w", outFreq);
-}
-
-console.log(getGross(96865, 'y', 'm'));
+// Example usage
+console.log(formatCurrency(calculateGrossFromNet(96865 / 52)));
