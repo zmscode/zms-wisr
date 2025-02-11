@@ -49,10 +49,7 @@ function frequencyConvert(from, to) {
 }
 
 function getBracket(gross) {
-  return (
-    TAX_CONSTANTS.NAT1004COEFFS.find((b) => gross <= b.threshold) ||
-    TAX_CONSTANTS.NAT1004COEFFS[TAX_CONSTANTS.NAT1004COEFFS.length - 1]
-  );
+  return (TAX_CONSTANTS.NAT1004COEFFS.find((b) => gross <= b.threshold) || TAX_CONSTANTS.NAT1004COEFFS[TAX_CONSTANTS.NAT1004COEFFS.length - 1]);
 }
 
 function calculateWeeklyTax(gross) {
