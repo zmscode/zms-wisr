@@ -39,8 +39,7 @@ const TAX_CONSTANTS = {
 };
 
 function formatCurrency(value) {
-  const roundToCents = Math.round(value * 100) / 100;
-  return "$" + Math.round(roundToCents).toLocaleString();
+  return "$" + Math.round(value).toLocaleString();
 }
 
 function frequencyConvert(from, to) {
@@ -72,4 +71,4 @@ function calculateGrossFromNet(netIncome, precision = 0.001) {
   return estimatedGross;
 }
 
-console.log(formatCurrency(calculateGrossFromNet(1897)));
+console.log(formatCurrency(calculateGrossFromNet(4295 * frequencyConvert('m', 'w')) * frequencyConvert('w', 'y')));
