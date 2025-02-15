@@ -34,16 +34,20 @@ const TAX_CONSTANTS = {
     m: 12,
     y: 1,
   },
-  PRECISION: 0.001,
+
+  PRECISION: 0.001
+
 };
 
 function formatCurrency(value) {
   return "$" + Math.floor(value).toLocaleString();
+
 }
 
 function frequencyConvert(from, to) {
   const multipliers = TAX_CONSTANTS.FREQUENCY_CODES;
   return multipliers[from] / multipliers[to];
+
 }
 
 function getBracket(gross) {
