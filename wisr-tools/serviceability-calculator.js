@@ -28,7 +28,7 @@ const HEM_VALUES = {
     { threshold: 322000, index: 13},
     { threshold: 386000, index: 14},
     { threshold: 644000, index: 15}
-  ]
+  ] 
 }
 
 const POSTCODES = {
@@ -87,6 +87,16 @@ const POSTCODES = {
   ],
 };
 
+console.log(process.cwd());
+
+const fs = require('fs');
+const csv = require('csv-parser');
+
+const results = [];
+
+fs.createReadStream('./yourfile.csv').pipe(csv()).on('data', (data) => results.push(data)).on('end', () => {console.log(results); });
+
+
 function lookup(value, array, lookupProperty, returnProperty, matchMode = 0) {
   let index = -1;
   
@@ -107,4 +117,4 @@ function lookup(value, array, lookupProperty, returnProperty, matchMode = 0) {
   return index !== -1 ? array[index][returnProperty] : undefined;
 }
 
-console.log(lookup(2560, POSTCODES.POSTCODE_TABLE, 'postcode', 'rurality', -1));
+// console.log(lookup(2000, POSTCODES.POSTCODE_TABLE, 'postcode', 'rurality', -1));

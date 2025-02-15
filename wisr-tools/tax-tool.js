@@ -17,6 +17,7 @@
  */
 
 const TAX_CONSTANTS = {
+
   NAT1004COEFFS: [
     { threshold: 361, rate: 0, offset: 0 },
     { threshold: 500, rate: 0.16, offset: 57.8462 },
@@ -28,6 +29,7 @@ const TAX_CONSTANTS = {
     { threshold: 3653, rate: 0.39, offset: 358.3077 },
     { threshold: Infinity, rate: 0.47, offset: 650.6154 },
   ],
+
   FREQUENCY_CODES: {
     w: 52,
     f: 26,
@@ -36,7 +38,6 @@ const TAX_CONSTANTS = {
   },
 
   PRECISION: 0.001
-
 };
 
 function formatCurrency(value) {
