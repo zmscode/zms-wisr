@@ -1,9 +1,7 @@
 /*
  * ---
- * Wisr Tax Calculator
+ * Wisr Tax Tool
  * ---
- *
- * Four functions (toDollars, getWeeklyTax, freqConverter, taxCalc) for tax calculation on income.
  *
  * Tax calculation using the Scale 2 NAT1004 coefficients, for PAYG employees claiming the tax-free threshold.
  *      [ https://www.ato.gov.au/api/public/content/a8c9f1aaa12247eaad9e077b0c2f9b2c?v=f528d73b ]
@@ -12,7 +10,7 @@
  *      [ https://jaws.tips/stuff/taxcalc.html ]
  * Originally created by Jason Waddell ("JAW") on 14 NOV 00.
  *
- * ---
+ * ---xe
  * zms - created: 04 FEB 25
  * ---
  *
@@ -28,7 +26,7 @@ const TAX_CONSTANTS = {
     { threshold: 1282, rate: 0.3227, offset: 180.0385 },
     { threshold: 2596, rate: 0.32, offset: 176.5769 },
     { threshold: 3653, rate: 0.39, offset: 358.3077 },
-    { threshold: 999999999, rate: 0.47, offset: 650.6154 },
+    { threshold: Infinity, rate: 0.47, offset: 650.6154 },
   ],
   FREQUENCY_CODES: {
     w: 52,
@@ -36,10 +34,11 @@ const TAX_CONSTANTS = {
     m: 12,
     y: 1,
   },
+  PRECISION: 0.001,
 };
 
 function formatCurrency(value) {
-  return "$" + Math.round(value).toLocaleString();
+  return "$" + Math.floor(value).toLocaleString();
 }
 
 function frequencyConvert(from, to) {
@@ -56,11 +55,11 @@ function calculateWeeklyTax(gross) {
   return bracket.rate * gross - bracket.offset;
 }
 
-function calculateGrossFromNet(netIncome, precision = 0.001) {
+function calculateGrossFromNet(netIncome) {
   let estimatedGross = netIncome * 1.5;
   let previousGross = 0;
 
-  while (Math.abs(estimatedGross - previousGross) > precision) {
+  while (Math.abs(estimatedGross - previousGross) > TAX_CONSTANTS.PRECISION) {
     previousGross = estimatedGross;
     const taxBracket = getBracket(estimatedGross);
     const netDifference = estimatedGross - taxBracket.rate * estimatedGross + taxBracket.offset - netIncome;
