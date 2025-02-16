@@ -92,12 +92,27 @@ const HEM_HELPER = {
   ],
 };
 
-const FREQUENCY_CODES = {
+const SERV_CALC_CONSTANTS = {
+  FREQUENCY_CODES: {
     w: 52,
     f: 26,
     m: 12,
     y: 1,
+  },
+
+  CREDIT_CARD_RATE: 0.038,
+
+  MORTGAGE_BUFFER: 0.05
+
 };
+
+let LOAN_DETAILS = {
+  amount: 25000,
+  product: "unsecured",
+  rate: 0.1,
+  term: 84,
+  jointloan: false
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -133,7 +148,7 @@ function formatcurrency(value, rounding = 0) {
 }
 
 function frequencyconvert(from, to) {
-  const multipliers = FREQUENCY_CODES;
+  const multipliers = SERV_CALC_CONSTANTS.FREQUENCY_CODES;
   return multipliers[from] / multipliers[to];
 
 }
@@ -200,9 +215,11 @@ function ytd(ytdincome, asat, taxyearstart = "2024-07-01") {
   return formatCurrency(annualincome, -1);
 }
 
-function calculateHEM(gross, dependents, postcode, state) {
+function calculateHEM(gross, marital, dependents, postcode, state) {
   const rurality = postcodesearch(postcode);
-  const maritalStatus = isjoint() ? 2 : 1;
+  
+  //const maritalStatus = isjoint() ? 2 : 1;
+  const maritalStatus = marital;
 
   const incomeBandsArray = [...new Set(HEM_DATA.map(entry => entry.INCOME_BAND))].sort((a, b) => a - b).map(band => ({ value: band }));
   
@@ -219,4 +236,3 @@ function calculateHEM(gross, dependents, postcode, state) {
   return hemEntry.HEM;
 }
 
-console.log(formatcurrency(calculateHEM(100000, 2, 2000, 'NSW') * frequencyconvert('w', 'm'), 1));

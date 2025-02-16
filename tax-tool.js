@@ -16,6 +16,10 @@
  *
  */
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+// Constants
+
 const TAX_TOOL_CONSTANTS = {
 
   NAT1004COEFFS: [
@@ -40,6 +44,10 @@ const TAX_TOOL_CONSTANTS = {
   PRECISION: 0.001
 };
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+// Helper functions
+
 function formatcurrency(value, rounding = 0) {
   switch (rounding) {
     case -1 : 
@@ -62,6 +70,10 @@ function getbracket(gross) {
   return (TAX_TOOL_CONSTANTS.NAT1004COEFFS.find((b) => gross <= b.threshold) || TAX_TOOL_CONSTANTS.NAT1004COEFFS[TAX_TOOL_CONSTANTS.NAT1004COEFFS.length - 1]);
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+// Main functions
+
 function calculateweeklytax(gross) {
   const bracket = getbracket(gross);
   return bracket.rate * gross - bracket.offset;
@@ -81,5 +93,3 @@ function calculategrossfromnet(net) {
 
   return estgross;
 }
-
-console.log(formatcurrency(calculategrossfromnet(4295 * frequencyconvert('m', 'w')) * frequencyconvert('w', 'y'), -1));
