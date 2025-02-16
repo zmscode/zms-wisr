@@ -1,32 +1,40 @@
 const DECLINE_RULES = {
     D01: {
-        condition: (data) => data.cashsurplus < 8.34 
+        condition: (servicingdata) => servicingdata.cashsurplus < 8.34 
     },
 
 };
 
 const REFER_RULES = {
     R01: {
-        condition: (data) => (data.age < 21 && data.income < 70000) || data.age >= 65
+        condition: (applicantdata, incomedata) => (applicantdata.age < 21 && incomedata.income < 70000) || applicantdata.age >= 65
         
     },
 
     R02: {
-        condition: (data) => data.cashsurplus > 8.34
+        condition: (servicingdata) => servicingdata.cashsurplus > 8.34
     },
 
     R03: {
-        condition: (data) => data.enqL4M >= 8
+        condition: (creditfiledata) => creditfiledata.enqL4M >= 8
     },
 
     R08a: {
-        condition: (data) => (data.dsr >= 0.6 && data.onescore < 730 && ((residencystatus != buyer || residencystatus != owner) || data.onescore < 540)) || data.dsr >= 0.8
+        condition: (servicingdata, applicantdata) => (servicingdata.dsr >= 0.6 && applicantdata.onescore < 730 && ((applicantdata.residencystatus != 'buyer' || applicantdata.residencystatus != 'owner') || applicantdata.onescore < 540)) || servicingdata.dsr >= 0.8
     },
 
     R08b: {
-        condition: (data) => (data.onescore <835 || (data.onescore < 540 && (residencystatus != buyer || residencystatus != owner))) && data.dto >= 1.0
+        condition: (servicingdata, applicantdata) => (applicantdata.onescore <835 || (applicantdata.onescore < 540 && (applicantdata.residencystatus != buyer || applicantdata.residencystatus != owner))) && servicingdata.dto >= 1.0
     },
 
-
-
 };
+
+/*
+* const person = { age: 70 };
+* const medical = { hasPreExisting: true };
+* const insurance = { planType: "Medicare" };
+* 
+* if (RULES.R01.condition(person, medical, insurance)) {
+*     console.log("Rule applies");
+* }
+*/
