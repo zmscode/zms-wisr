@@ -11,9 +11,6 @@
  * 
  */ 
 
-async function wisrABNTool(abn) {
-    const axios = require("axios");
-    const cheerio = require("cheerio");
+function ABNTool(abn) {
     
-
 }
