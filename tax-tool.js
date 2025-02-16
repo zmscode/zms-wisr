@@ -40,7 +40,7 @@ const TAX_TOOL_CONSTANTS = {
   PRECISION: 0.001
 };
 
-function formatCurrency(value, rounding = 0) {
+function formatcurrency(value, rounding = 0) {
   switch (rounding) {
     case -1 : 
       return "$" + Math.floor(value).toLocaleString();
@@ -52,34 +52,34 @@ function formatCurrency(value, rounding = 0) {
 
 }
 
-function frequencyConvert(from, to) {
+function frequencyconvert(from, to) {
   const multipliers = TAX_TOOL_CONSTANTS.FREQUENCY_CODES;
   return multipliers[from] / multipliers[to];
 
 }
 
-function getBracket(gross) {
+function getbracket(gross) {
   return (TAX_TOOL_CONSTANTS.NAT1004COEFFS.find((b) => gross <= b.threshold) || TAX_TOOL_CONSTANTS.NAT1004COEFFS[TAX_TOOL_CONSTANTS.NAT1004COEFFS.length - 1]);
 }
 
-function calculateWeeklyTax(gross) {
-  const bracket = getBracket(gross);
+function calculateweeklytax(gross) {
+  const bracket = getbracket(gross);
   return bracket.rate * gross - bracket.offset;
 }
 
-function calculateGrossFromNet(netIncome) {
-  let estimatedGross = netIncome * 1.5;
-  let previousGross = 0;
+function calculategrossfromnet(net) {
+  let estgross = net * 1.5;
+  let prevgross = 0;
 
-  while (Math.abs(estimatedGross - previousGross) > TAX_TOOL_CONSTANTS.PRECISION) {
-    previousGross = estimatedGross;
-    const taxBracket = getBracket(estimatedGross);
-    const netDifference = estimatedGross - taxBracket.rate * estimatedGross + taxBracket.offset - netIncome;
-    const taxRateDerivative = 1 - taxBracket.rate;
-    estimatedGross -= netDifference / taxRateDerivative;
+  while (Math.abs(estgross - prevgross) > TAX_TOOL_CONSTANTS.PRECISION) {
+    prevgross = estgross;
+    const bracket = getbracket(estgross);
+    const netdiff = estgross - bracket.rate * estgross + bracket.offset - net;
+    const ratederivative = 1 - bracket.rate;
+    estgross -= netdiff / ratederivative;
   }
 
-  return estimatedGross;
+  return estgross;
 }
 
-console.log(formatCurrency(calculateGrossFromNet(4295 * frequencyConvert('m', 'w')) * frequencyConvert('w', 'y')), 1);
+console.log(formatcurrency(calculategrossfromnet(4295 * frequencyconvert('m', 'w')) * frequencyconvert('w', 'y'), -1));

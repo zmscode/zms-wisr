@@ -11,25 +11,19 @@
  *
  */
 
-const HEM_VALUES = {
-  INCOME_BANDS: [
-    { threshold: 0, index: 1},
-    { threshold: 26000, index: 2},
-    { threshold: 39000, index: 3},
-    { threshold: 52000, index: 4},
-    { threshold: 64000, index: 5},
-    { threshold: 77000, index: 6},
-    { threshold: 103000, index: 7},
-    { threshold: 129000, index: 8},
-    { threshold: 155000, index: 9},
-    { threshold: 180000, index: 10},
-    { threshold: 206000, index: 11},
-    { threshold: 258000, index: 12},
-    { threshold: 322000, index: 13},
-    { threshold: 386000, index: 14},
-    { threshold: 644000, index: 15}
-  ] 
-}
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+// Imports
+
+import { readFile } from 'fs/promises';
+import Papa from 'papaparse';
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+// Constants
+
+const HEM_DATA = await convertLogsToArray();
+
 
 const HEM_HELPER = {
   STATES: [
@@ -98,19 +92,32 @@ const HEM_HELPER = {
   ],
 };
 
-let LOAN_DETAILS = {
-  jointloan: false
-
+const FREQUENCY_CODES = {
+    w: 52,
+    f: 26,
+    m: 12,
+    y: 1,
 };
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+// Helper functions
 
-function togglejoint() {
-  return !LOAN_DETAILS.jointloan;
-}
+async function convertLogsToArray() {
+  try {
+    const fileContent = await readFile('HEM.csv', 'utf8');
+    
+    const result = Papa.parse(fileContent, {
+      header: true,
+      dynamicTyping: true,
+      skipEmptyLines: true
+    });
 
-function isjoint() {
-  return LOAN_DETAILS.jointloan;
+    return result.data;
+  } catch (error) {
+    console.error('Error reading or parsing file:', error);
+    throw error;
+  }
 }
 
 function formatcurrency(value, rounding = 0) {
@@ -125,27 +132,48 @@ function formatcurrency(value, rounding = 0) {
 
 }
 
+function frequencyconvert(from, to) {
+  const multipliers = FREQUENCY_CODES;
+  return multipliers[from] / multipliers[to];
+
+}
 
 function lookup(value, array, lookupProperty, returnProperty, matchMode = 0) {
   let index = -1;
   
   if (matchMode === 0) {
       index = array.findIndex(item => item[lookupProperty] === value);
-  } else {
-      for (let i = 0; i < array.length; i++) {
-          const currentValue = array[i][lookupProperty];
-          if (matchMode === -1 && currentValue <= value) {
-              index = i;
-          } else if (matchMode === 1 && currentValue >= value) {
-              index = i;
-              break;
-          }
-      }
+  } 
+  for (let i = 0; i < array.length; i++) {
+    const currentValue = array[i][lookupProperty];
+    if (matchMode === -1 && currentValue <= value) {
+        index = i;
+    } else if (matchMode === 1 && currentValue >= value) {
+        index = i;
+        break;
+    }
   }
   
   return index !== -1 ? array[index][returnProperty] : undefined;
+
 }
-//console.log(lookup(2000, POSTCODES.POSTCODE_TABLE, 'postcode', 'rurality', -1));
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+// Main functions
+
+function togglejoint() {
+  return !LOAN_DETAILS.jointloan;
+}
+
+function isjoint() {
+  return LOAN_DETAILS.jointloan;
+}
+
+function postcodesearch(postcode) {
+  return lookup(postcode, HEM_HELPER.POSTCODE_TABLE, 'postcode', 'rurality', -1);
+
+}
 
 function calculaterepayments(startBal, rate, months, establishmentfee = 0, brokerfee = 0, monthlyfee = 0, formatted=true) {
   if (rate > 1) {
@@ -172,6 +200,23 @@ function ytd(ytdincome, asat, taxyearstart = "2024-07-01") {
   return formatCurrency(annualincome, -1);
 }
 
-function benefitsincome() {
+function calculateHEM(gross, dependents, postcode, state) {
+  const rurality = postcodesearch(postcode);
+  const maritalStatus = isjoint() ? 2 : 1;
 
+  const incomeBandsArray = [...new Set(HEM_DATA.map(entry => entry.INCOME_BAND))].sort((a, b) => a - b).map(band => ({ value: band }));
+  
+  const incomeBand = lookup(gross, incomeBandsArray, 'value', 'value', -1);
+  
+  const hemEntry = HEM_DATA.find(entry => 
+    entry.STATE === state &&
+    entry.RURALITY === rurality &&
+    entry.MARITAL_STATUS === maritalStatus &&
+    entry.NUM_DEPENDENTS === dependents &&
+    entry.INCOME_BAND === incomeBand
+  );
+
+  return hemEntry.HEM;
 }
+
+console.log(formatcurrency(calculateHEM(100000, 2, 2000, 'NSW') * frequencyconvert('w', 'm'), 1));
