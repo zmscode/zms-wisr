@@ -11,16 +11,8 @@
  *
  */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-// Imports
-
 import { readFile } from 'fs/promises';
 import Papa from 'papaparse';
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-// Constants
 
 const HEM_DATA = await convertLogsToArray();
 
@@ -111,12 +103,11 @@ let LOAN_DETAILS = {
   product: "unsecured",
   rate: 0.1,
   term: 84,
+  channel: "broker",
   jointloan: false
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-// Helper functions
 
 async function convertLogsToArray() {
   try {
@@ -175,8 +166,6 @@ function lookup(value, array, lookupProperty, returnProperty, matchMode = 0) {
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-// Main functions
-
 function togglejoint() {
   return !LOAN_DETAILS.jointloan;
 }
@@ -205,7 +194,6 @@ function calculaterepayments(startBal, rate, months, establishmentfee = 0, broke
   
 }
 
-
 function ytd(ytdincome, asat, taxyearstart = "2024-07-01") {
   taxyearstart = new Date(Date.parse(taxyearstart));
   asat = new Date(Date.parse(asat));
@@ -215,7 +203,8 @@ function ytd(ytdincome, asat, taxyearstart = "2024-07-01") {
   return formatCurrency(annualincome, -1);
 }
 
-function calculateHEM(gross, marital, dependents, postcode, state) {
+function calculateHEM(income, marital, dependents, postcode, state) {
+// function calculateHEM(income, dependents, postcode, state) {
   const rurality = postcodesearch(postcode);
   
   //const maritalStatus = isjoint() ? 2 : 1;
@@ -223,9 +212,9 @@ function calculateHEM(gross, marital, dependents, postcode, state) {
 
   const incomeBandsArray = [...new Set(HEM_DATA.map(entry => entry.INCOME_BAND))].sort((a, b) => a - b).map(band => ({ value: band }));
   
-  const incomeBand = lookup(gross, incomeBandsArray, 'value', 'value', -1);
+  const incomeBand = lookup(income, incomeBandsArray, 'value', 'value', -1);
   
-  const hemEntry = HEM_DATA.find(entry => 
+  const hem = HEM_DATA.find(entry => 
     entry.STATE === state &&
     entry.RURALITY === rurality &&
     entry.MARITAL_STATUS === maritalStatus &&
@@ -233,6 +222,6 @@ function calculateHEM(gross, marital, dependents, postcode, state) {
     entry.INCOME_BAND === incomeBand
   );
 
-  return hemEntry.HEM;
+  return hem.HEM;
 }
 

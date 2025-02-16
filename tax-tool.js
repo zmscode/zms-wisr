@@ -16,10 +16,6 @@
  *
  */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-// Constants
-
 const TAX_TOOL_CONSTANTS = {
 
   NAT1004COEFFS: [
@@ -46,8 +42,6 @@ const TAX_TOOL_CONSTANTS = {
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-// Helper functions
-
 function formatcurrency(value, rounding = 0) {
   switch (rounding) {
     case -1 : 
@@ -71,8 +65,6 @@ function getbracket(gross) {
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-// Main functions
 
 function calculateweeklytax(gross) {
   const bracket = getbracket(gross);
