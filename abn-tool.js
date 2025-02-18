@@ -74,6 +74,7 @@ async function initBrowser() {
 }
 
 async function scrapeABNDetails(abn) {
+    abn.replace(/[^0-9]/g, '');
     const page = await context.newPage();
     
     try {

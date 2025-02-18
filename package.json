@@ -14,7 +14,7 @@
     "date-fns": "^4.1.0",
     "lodash": "^4.17.21",
     "papaparse": "^5.5.2",
-    "playwright": "^1.x.x",
+    "playwright": "^1.50.1",
     "uuid": "^11.0.5"
   },
   "type": "module"
