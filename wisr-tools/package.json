@@ -1,0 +1,21 @@
+{
+  "name": "zms-wisr",
+  "version": "0.0.1",
+  "description": "Various personal js tools",
+  "author": {
+    "name": "zms",
+    "email": "zacmorrisseysmith@gmail.com"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^6.4.4",
+    "@mui/material": "^6.4.4",
+    "date-fns": "^4.1.0",
+    "lodash": "^4.17.21",
+    "papaparse": "^5.5.2",
+    "playwright": "^1.x.x",
+    "uuid": "^11.0.5"
+  },
+  "type": "module"
+}
