@@ -16,29 +16,26 @@
  *
  */
 
-const TAX_TOOL_CONSTANTS = {
-
-  NAT1004COEFFS: [
-    { threshold: 361, rate: 0, offset: 0 },
-    { threshold: 500, rate: 0.16, offset: 57.8462 },
-    { threshold: 625, rate: 0.26, offset: 107.8462 },
-    { threshold: 721, rate: 0.18, offset: 57.8462 },
-    { threshold: 865, rate: 0.189, offset: 64.3365 },
-    { threshold: 1282, rate: 0.3227, offset: 180.0385 },
-    { threshold: 2596, rate: 0.32, offset: 176.5769 },
-    { threshold: 3653, rate: 0.39, offset: 358.3077 },
-    { threshold: Infinity, rate: 0.47, offset: 650.6154 },
-  ],
-
-  FREQUENCY_CODES: {
-    w: 52,
-    f: 26,
-    m: 12,
-    y: 1,
-  },
-
-  PRECISION: 0.001
+const FREQUENCY_CODES = {
+  w: 52,
+  f: 26,
+  m: 12,
+  y: 1,
 };
+
+let PRECISION = 0.001;
+
+const NAT1004COEFFS = [
+  { threshold: 361, rate: 0, offset: 0 },
+  { threshold: 500, rate: 0.16, offset: 57.8462 },
+  { threshold: 625, rate: 0.26, offset: 107.8462 },
+  { threshold: 721, rate: 0.18, offset: 57.8462 },
+  { threshold: 865, rate: 0.189, offset: 64.3365 },
+  { threshold: 1282, rate: 0.3227, offset: 180.0385 },
+  { threshold: 2596, rate: 0.32, offset: 176.5769 },
+  { threshold: 3653, rate: 0.39, offset: 358.3077 },
+  { threshold: Infinity, rate: 0.47, offset: 650.6154 },
+];
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -55,13 +52,12 @@ function formatcurrency(value, rounding = 0) {
 }
 
 function frequencyconvert(from, to) {
-  const multipliers = TAX_TOOL_CONSTANTS.FREQUENCY_CODES;
-  return multipliers[from] / multipliers[to];
+  return FREQUENCY_CODES[from] / FREQUENCY_CODES[to];
 
 }
 
 function getbracket(gross) {
-  return (TAX_TOOL_CONSTANTS.NAT1004COEFFS.find((b) => gross <= b.threshold) || TAX_TOOL_CONSTANTS.NAT1004COEFFS[TAX_TOOL_CONSTANTS.NAT1004COEFFS.length - 1]);
+  return (NAT1004COEFFS.find((b) => gross <= b.threshold) || NAT1004COEFFS[NAT1004COEFFS.length - 1]);
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -75,7 +71,7 @@ function calculategrossfromnet(net) {
   let estgross = net * 1.5;
   let prevgross = 0;
 
-  while (Math.abs(estgross - prevgross) > TAX_TOOL_CONSTANTS.PRECISION) {
+  while (Math.abs(estgross - prevgross) > PRECISION) {
     prevgross = estgross;
     const bracket = getbracket(estgross);
     const netdiff = estgross - bracket.rate * estgross + bracket.offset - net;
