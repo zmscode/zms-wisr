@@ -17,81 +17,74 @@ import { dirname, join } from 'path';
 import Papa from 'papaparse';
 
 let globalHemData = null;
+
 const CURR_YEAR = new Date().getFullYear().toString().substring(0, 4);
 const TAX_YEAR_START = ((Number(CURR_YEAR) - 1) + '-07-01');
 
-const HEM_HELPER = {
+const POSTCODE_TABLE = [
+  { postcode: 800, rurality: "ALL" },
+  { postcode: 832, rurality: "ALL" },
+  { postcode: 833, rurality: "ALL" },
+  { postcode: 899, rurality: "ALL" },
+  { postcode: 2000, rurality: "METRO" },
+  { postcode: 2234, rurality: "METRO" },
+  { postcode: 2235, rurality: "NONMETRO" },
+  { postcode: 2599, rurality: "NONMETRO" },
+  { postcode: 2600, rurality: "ALL" },
+  { postcode: 2612, rurality: "ALL" },
+  { postcode: 2613, rurality: "NONMETRO" },
+  { postcode: 2614, rurality: "ALL" },
+  { postcode: 2617, rurality: "ALL" },
+  { postcode: 2618, rurality: "NONMETRO" },
+  { postcode: 2899, rurality: "NONMETRO" },
+  { postcode: 2900, rurality: "ALL" },
+  { postcode: 2906, rurality: "ALL" },
+  { postcode: 2907, rurality: "NONMETRO" },
+  { postcode: 2910, rurality: "NONMETRO" },
+  { postcode: 2911, rurality: "ALL" },
+  { postcode: 2914, rurality: "ALL" },
+  { postcode: 2915, rurality: "NONMETRO" },
+  { postcode: 2999, rurality: "NONMETRO" },
+  { postcode: 3000, rurality: "METRO" },
+  { postcode: 3207, rurality: "METRO" },
+  { postcode: 3208, rurality: "NONMETRO" },
+  { postcode: 3999, rurality: "NONMETRO" },
+  { postcode: 4000, rurality: "METRO" },
+  { postcode: 4207, rurality: "METRO" },
+  { postcode: 4208, rurality: "NONMETRO" },
+  { postcode: 4299, rurality: "NONMETRO" },
+  { postcode: 4300, rurality: "METRO" },
+  { postcode: 4305, rurality: "METRO" },
+  { postcode: 4306, rurality: "NONMETRO" },
+  { postcode: 4499, rurality: "NONMETRO" },
+  { postcode: 4500, rurality: "METRO" },
+  { postcode: 4519, rurality: "METRO" },
+  { postcode: 4520, rurality: "NONMETRO" },
+  { postcode: 4999, rurality: "NONMETRO" },
+  { postcode: 5000, rurality: "METRO" },
+  { postcode: 5199, rurality: "METRO" },
+  { postcode: 5200, rurality: "NONMETRO" },
+  { postcode: 5999, rurality: "NONMETRO" },
+  { postcode: 6000, rurality: "METRO" },
+  { postcode: 6199, rurality: "METRO" },
+  { postcode: 6200, rurality: "NONMETRO" },
+  { postcode: 6999, rurality: "NONMETRO" },
+  { postcode: 7000, rurality: "METRO" },
+  { postcode: 7099, rurality: "METRO" },
+  { postcode: 7100, rurality: "NONMETRO" },
+  { postcode: 7999, rurality: "NONMETRO" },
+];
 
-  POSTCODE_TABLE: [
-    { postcode: 800, rurality: "ALL" },
-    { postcode: 832, rurality: "ALL" },
-    { postcode: 833, rurality: "ALL" },
-    { postcode: 899, rurality: "ALL" },
-    { postcode: 2000, rurality: "METRO" },
-    { postcode: 2234, rurality: "METRO" },
-    { postcode: 2235, rurality: "NONMETRO" },
-    { postcode: 2599, rurality: "NONMETRO" },
-    { postcode: 2600, rurality: "ALL" },
-    { postcode: 2612, rurality: "ALL" },
-    { postcode: 2613, rurality: "NONMETRO" },
-    { postcode: 2614, rurality: "ALL" },
-    { postcode: 2617, rurality: "ALL" },
-    { postcode: 2618, rurality: "NONMETRO" },
-    { postcode: 2899, rurality: "NONMETRO" },
-    { postcode: 2900, rurality: "ALL" },
-    { postcode: 2906, rurality: "ALL" },
-    { postcode: 2907, rurality: "NONMETRO" },
-    { postcode: 2910, rurality: "NONMETRO" },
-    { postcode: 2911, rurality: "ALL" },
-    { postcode: 2914, rurality: "ALL" },
-    { postcode: 2915, rurality: "NONMETRO" },
-    { postcode: 2999, rurality: "NONMETRO" },
-    { postcode: 3000, rurality: "METRO" },
-    { postcode: 3207, rurality: "METRO" },
-    { postcode: 3208, rurality: "NONMETRO" },
-    { postcode: 3999, rurality: "NONMETRO" },
-    { postcode: 4000, rurality: "METRO" },
-    { postcode: 4207, rurality: "METRO" },
-    { postcode: 4208, rurality: "NONMETRO" },
-    { postcode: 4299, rurality: "NONMETRO" },
-    { postcode: 4300, rurality: "METRO" },
-    { postcode: 4305, rurality: "METRO" },
-    { postcode: 4306, rurality: "NONMETRO" },
-    { postcode: 4499, rurality: "NONMETRO" },
-    { postcode: 4500, rurality: "METRO" },
-    { postcode: 4519, rurality: "METRO" },
-    { postcode: 4520, rurality: "NONMETRO" },
-    { postcode: 4999, rurality: "NONMETRO" },
-    { postcode: 5000, rurality: "METRO" },
-    { postcode: 5199, rurality: "METRO" },
-    { postcode: 5200, rurality: "NONMETRO" },
-    { postcode: 5999, rurality: "NONMETRO" },
-    { postcode: 6000, rurality: "METRO" },
-    { postcode: 6199, rurality: "METRO" },
-    { postcode: 6200, rurality: "NONMETRO" },
-    { postcode: 6999, rurality: "NONMETRO" },
-    { postcode: 7000, rurality: "METRO" },
-    { postcode: 7099, rurality: "METRO" },
-    { postcode: 7100, rurality: "NONMETRO" },
-    { postcode: 7999, rurality: "NONMETRO" },
-  ],
+const FREQUENCY_CODES = {
+  w: 52,
+  f: 26,
+  m: 12,
+  y: 1
 };
 
-const SERV_CALC_CONSTANTS = {
-  FREQUENCY_CODES: {
-    w: 52,
-    f: 26,
-    m: 12,
-    y: 1,
-  },
-
-  INCOME_BANDS: [0, 26000, 39000, 52000, 64000, 77000, 103000, 129000, 155000, 180000, 206000, 258000, 322000, 386000, 644000 ],
-
-  CREDIT_CARD_RATE: 0.038,
-
-  MORTGAGE_BUFFER: 0.05
-
-};
+const INCOME_BANDS = [0, 26000, 39000, 52000, 64000, 77000, 103000, 129000, 155000, 180000, 206000, 258000, 322000, 386000, 644000 ];
+const CREDIT_CARD_RATE = 0.038;
+const MORTGAGE_BUFFER = 0.05;
 
 let LOAN_DETAILS = {
   amount: 25000,
@@ -151,10 +144,8 @@ function formatcurrency(value, rounding = 0) {
 
 }
 
-function frequencyconvert(from, to) {
-  const multipliers = SERV_CALC_CONSTANTS.FREQUENCY_CODES;
-  return multipliers[from] / multipliers[to];
-
+function frequencyconvert(from, to = 'y') {
+  return FREQUENCY_CODES[from] / FREQUENCY_CODES[to];
 }
 
 function getNestedValue(obj, key) {
@@ -235,8 +226,7 @@ function isjoint() {
 }
 
 function postcodesearch(postcode) {
-  return findclosestcomplex(postcode, HEM_HELPER.POSTCODE_TABLE, 'postcode', 'rurality', -1);
-
+  return findclosestcomplex(postcode, POSTCODE_TABLE, 'postcode', 'rurality', -1);
 }
 
 function calculaterepayments(startBal, rate, months, establishmentfee = 0, brokerfee = 0, monthlyfee = 0, formatted=true) {
@@ -271,7 +261,7 @@ async function weeklyhem(income, marital, dependents, postcode, state, partnerin
   try {
     const hemData = await loadHEMData();
     
-    const income_band = findclosestsimple(householdincome, SERV_CALC_CONSTANTS.INCOME_BANDS, -1);
+    const income_band = findclosestsimple(householdincome, INCOME_BANDS, -1);
     const rurality = postcodesearch(postcode);
     
     const key = `${state}_${rurality}_${marital}_${dependents}_${income_band}`;
