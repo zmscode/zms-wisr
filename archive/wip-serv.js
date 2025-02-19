@@ -17,8 +17,7 @@ import { dirname, join } from 'path';
 import Papa from 'papaparse';
 
 let globalHemData = null;
-const CURR_YEAR = new Date().getFullYear().toString().substring(0, 4);
-const TAX_YEAR_START = ((Number(CURR_YEAR) - 1) + '-07-01');
+
 
 const HEM_HELPER = {
 
@@ -254,7 +253,7 @@ function calculaterepayments(startBal, rate, months, establishmentfee = 0, broke
   
 }
 
-function ytd(ytdincome, asat, taxyearstart = TAX_YEAR_START) {
+function ytd(ytdincome, asat, taxyearstart = "2024-07-01") {
   taxyearstart = new Date(Date.parse(taxyearstart));
   asat = new Date(Date.parse(asat));
   const datediff = (asat - taxyearstart) / (1000 * 60 * 60 * 24 * 7);
