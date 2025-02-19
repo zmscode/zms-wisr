@@ -225,3 +225,5 @@ function calculateHEM(income, marital, dependents, postcode, state) {
   return hem.HEM;
 }
 
+const hem = calculateHEM(153884, 1, 0, 4876, 'QLD') * 52 / 12;
+console.log(hem);
