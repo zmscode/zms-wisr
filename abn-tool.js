@@ -162,10 +162,8 @@ async function lookupABN(abn) {
         isInitialized = true;
     }
     
-    try {
-        console.time('scraping');
+    try {0
         const data = await scrapeABNDetails(abn);
-        console.timeEnd('scraping');
         if (data) console.log(data);
 
         clearTimeout(cleanupTimeout);

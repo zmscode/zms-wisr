@@ -11,6 +11,25 @@
  *
  */
 
+import sql from "./db.js";
+
+async function getAllHemData() {
+    try {
+        const data = await sql`
+      SELECT * FROM "HEMDATA"
+    `
+        return data
+    } catch (error) {
+        console.error('Error fetching HEMDATA:', error)
+        throw error
+    }
+}
+
+console.log(getAllHemData());
+
+
+
+
 import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -280,5 +299,5 @@ async function weeklyhem(income, marital, dependents, postcode, state, partnerin
 }
 }
 
-const result = await weeklyhem(167432, 2, 8, 6030, 'WA', 78698);
-console.log(formatcurrency(result * frequencyconvert('w', 'm'), 1));
+//const result = await weeklyhem(167432, 2, 8, 6030, 'WA', 78698);
+//console.log(formatcurrency(result * frequencyconvert('w', 'm'), 1));

@@ -81,3 +81,5 @@ function calculategrossfromnet(net) {
 
   return estgross;
 }
+
+console.log(formatcurrency(calculategrossfromnet(64272), -1))
