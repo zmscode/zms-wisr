@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node ./server/server.js",
-    "install": "npm install; cd ./server; npm install; cd ../../webgui/zms-wisr; npm install --legacy-peer-deps; npm install playwright -g"
+    "installDeps": "cd ./server; npm install; cd ../webgui/zms-wisr; npm install --legacy-peer-deps; npm install playwright -g"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
