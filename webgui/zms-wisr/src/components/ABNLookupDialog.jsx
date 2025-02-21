@@ -113,6 +113,7 @@ const SearchComponent = ({
   setError,
 }) => {
   const [loading, setLoading] = useState(false);
+  
 
   useEffect(() => {
     function handleKeyDown(e) {
