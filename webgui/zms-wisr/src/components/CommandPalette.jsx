@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import "react-cmdk/dist/cmdk.css";
 import CommandPalette, { filterItems, getItemIndex } from "react-cmdk";
+import { Search } from "lucide-react";
 
-const CommandPaletteComponent = () => {
+const CommandPaletteComponent = ({ setAbnLookupOpen }) => {
   const [page, setPage] = useState("root");
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -38,61 +39,61 @@ const CommandPaletteComponent = () => {
         id: "home",
         items: [
           {
-            id: "home",
-            children: "Home",
-            icon: "HomeIcon",
+            id: "abn_lookup",
+            title: "ABN Lookup",
+            heroIcon: <Search style={{ color: "#6C727F" }} />,
             onClick: () => {
-              alert("Home");
+              setAbnLookupOpen(true);
             },
           },
-          {
-            id: "settings",
-            children: "Settings",
-            icon: "CogIcon",
-            onClick: () => {
-              alert("Settings");
-            },
-          },
-          {
-            id: "projects",
-            children: "Projects",
-            icon: "RectangleStackIcon",
-            onClick: () => {
-              alert("Projects");
-            },
-          },
+        //   {
+        //     id: "settings",
+        //     title: "Settings",
+        //     icon: "CogIcon",
+        //     onClick: () => {
+        //       alert("Settings");
+        //     },
+        //   },
+        //   {
+        //     id: "projects",
+        //     title: "Projects",
+        //     icon: "RectangleStackIcon",
+        //     onClick: () => {
+        //       alert("Projects");
+        //     },
+        //   },
         ],
       },
-      {
-        heading: "Other",
-        id: "advanced",
-        items: [
-          {
-            id: "developer-settings",
-            children: "Developer settings",
-            icon: "CodeBracketIcon",
-            onClick: () => {
-              alert("Developer settings");
-            },
-          },
-          {
-            id: "privacy-policy",
-            children: "Privacy policy",
-            icon: "LifebuoyIcon",
-            onClick: () => {
-              alert("Privacy policy");
-            },
-          },
-          {
-            id: "log-out",
-            children: "Log out",
-            icon: "ArrowRightOnRectangleIcon",
-            onClick: () => {
-              alert("Logging out...");
-            },
-          },
-        ],
-      },
+      // {
+      //   heading: "Other",
+      //   id: "advanced",
+      //   items: [
+      //     {
+      //       id: "developer-settings",
+      //       title: "Developer settings",
+      //       icon: "CodeBracketIcon",
+      //       onClick: () => {
+      //         alert("Developer settings");
+      //       },
+      //     },
+      //     {
+      //       id: "privacy-policy",
+      //       title: "Privacy policy",
+      //       icon: "LifebuoyIcon",
+      //       onClick: () => {
+      //         alert("Privacy policy");
+      //       },
+      //     },
+      //     {
+      //       id: "log-out",
+      //       title: "Log out",
+      //       icon: "ArrowRightOnRectangleIcon",
+      //       onClick: () => {
+      //         alert("Logging out...");
+      //       },
+      //     },
+      //   ],
+      // },
     ],
     search
   );
@@ -109,12 +110,17 @@ const CommandPaletteComponent = () => {
         {filteredItems.length ? (
           filteredItems.map((list) => (
             <CommandPalette.List key={list.id} heading={list.heading}>
-              {list.items.map(({ id, ...rest }) => (
+              {list.items.map(({ id, heroIcon, title, ...rest }) => (
                 <CommandPalette.ListItem
                   key={id}
                   index={getItemIndex(filteredItems, id)}
                   {...rest}
-                />
+                >
+                  {heroIcon}
+                  <div className="mx-2 text-md" style={{ color: "#D9DADD" }}>
+                    {title}
+                  </div>
+                </CommandPalette.ListItem>
               ))}
             </CommandPalette.List>
           ))

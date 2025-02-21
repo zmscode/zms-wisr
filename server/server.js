@@ -1,33 +1,36 @@
-const express = require('express');
-const path = require('path');
+import express from "express";
+import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
+import { lookupABN } from "./modules/abn-tool.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 3000;
 
-// Middleware to parse JSON bodies (for POST requests, etc.)
+app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "../webgui/zms-wisr/dist")));
 
-// Serve the static files from the React app
-app.use(express.static(path.join(__dirname, '../webgui/zms-wisr/dist')));
-
-// Example API endpoint
-app.get('/api/hello', (req, res) => {
-  res.json({ message: 'Hello from the server!' });
+app.post("/api/lookup-abn", async (req, res) => {
+  const { abn } = req.body;
+  if (!abn) {
+    return res.status(400).json({ error: "ABN is required in JSON body." });
+  }
+  try {
+    const result = await lookupABN(abn);
+    res.json({ data: result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// More API endpoints can go here
-app.post('/api/data', (req, res) => {
-  const { someValue } = req.body;
-  // Do something with someValue
-  res.json({ status: 'success', received: someValue });
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../webgui/zms-wisr/dist", "index.html"));
 });
 
-// For any other route, serve index.html from the React build
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../webgui/zms-wisr/dist', 'index.html'));
-});
-
-// Start the server
 app.listen(PORT, () => {
-  console.log(`Server running http://localhost:${PORT}`);
+  console.log(`Server running at http://localhost:${PORT}`);
 });
