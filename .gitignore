@@ -4,6 +4,8 @@
 .env.test
 .env.production
 /node_modules
+/server/node_modules
+/webgui/zms-wisr/node_modules
 /.pnp
 .pnp.js
 yarn.lock
