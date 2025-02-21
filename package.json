@@ -7,7 +7,7 @@
     "email": "zacmorrisseysmith@gmail.com"
   },
   "scripts": {
-    "start": "node ./server/server.js",
+    "start": "cd ./webgui/zms-wisr; npm run build; cd ../../; node ./server/server.js",
     "installDeps": "cd ./server; npm install; cd ../webgui/zms-wisr; npm install --legacy-peer-deps; npm install playwright -g"
   },
   "dependencies": {
